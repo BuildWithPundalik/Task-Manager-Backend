@@ -2,16 +2,19 @@
 module.exports = (req, res) => {
   // Set CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  
+
   // Handle preflight requests
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
-  
+
   const { url, method } = req;
-  
+
   // Root endpoint
   if (url === "/" || url === "") {
     return res.status(200).json({
@@ -21,20 +24,20 @@ module.exports = (req, res) => {
       endpoints: {
         auth: "/api/auth/login",
         tasks: "/api/tasks",
-        health: "/api/health"
-      }
+        health: "/api/health",
+      },
     });
   }
-  
+
   // Health check
   if (url === "/api/health") {
     return res.status(200).json({
       status: "OK",
       timestamp: new Date().toISOString(),
-      message: "API is healthy"
+      message: "API is healthy",
     });
   }
-  
+
   // Login endpoint
   if (url === "/api/auth/login" && method === "POST") {
     return res.status(200).json({
@@ -43,12 +46,12 @@ module.exports = (req, res) => {
       token: "test-token-12345",
       user: {
         id: "test-user",
-        email: "test@example.com"
+        email: "test@example.com",
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
-  
+
   // Register endpoint
   if (url === "/api/auth/register" && method === "POST") {
     return res.status(201).json({
@@ -56,12 +59,12 @@ module.exports = (req, res) => {
       message: "Register endpoint working",
       user: {
         id: "new-user",
-        email: req.body?.email || "test@example.com"
+        email: req.body?.email || "test@example.com",
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
-  
+
   // Tasks endpoint
   if (url === "/api/tasks" && method === "GET") {
     return res.status(200).json({
@@ -72,21 +75,21 @@ module.exports = (req, res) => {
           title: "Test Task 1",
           description: "This is a test task",
           status: "pending",
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         },
         {
-          id: "2", 
+          id: "2",
           title: "Test Task 2",
           description: "Another test task",
           status: "completed",
-          createdAt: new Date().toISOString()
-        }
+          createdAt: new Date().toISOString(),
+        },
       ],
       count: 2,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
-  
+
   // Create task endpoint
   if (url === "/api/tasks" && method === "POST") {
     return res.status(201).json({
@@ -97,12 +100,12 @@ module.exports = (req, res) => {
         title: req.body?.title || "New Task",
         description: req.body?.description || "",
         status: "pending",
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
-  
+
   // 404 for all other routes
   return res.status(404).json({
     error: "Not found",
@@ -111,11 +114,11 @@ module.exports = (req, res) => {
     timestamp: new Date().toISOString(),
     available_endpoints: [
       "GET /",
-      "GET /api/health", 
+      "GET /api/health",
       "POST /api/auth/login",
       "POST /api/auth/register",
       "GET /api/tasks",
-      "POST /api/tasks"
-    ]
+      "POST /api/tasks",
+    ],
   });
 };
