@@ -32,7 +32,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 app.get("/", (_req, res) => {
-  res.send('Backend is running');
   res.json({ 
     message: "Task Manager API is running",
     version: "1.0.0",
