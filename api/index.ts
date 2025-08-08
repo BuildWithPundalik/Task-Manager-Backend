@@ -1,6 +1,7 @@
 // api/index.ts for Vercel serverless function entry point
-const app = require("../dist/index.js").default;
+import app from "../src/index";
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default function handler(req, res) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   return app(req, res);
 }
