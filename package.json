@@ -1,23 +1,21 @@
 {
   "name": "task-manager-backend",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "description": "Task Manager Backend API with Node.js, Express, TypeScript, and MongoDB",
+  "main": "api/test.js",
+  "description": "Task Manager Backend API with Node.js, Express, and MongoDB (Serverless)",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "vercel-build": "npm run build",
-    "clean": "rimraf dist",
-    "prebuild": "npm run clean"
+    "test": "node api/test.js"
   },
   "keywords": [
     "task-manager",
     "nodejs",
     "express",
     "mongodb",
-    "typescript",
-    "api"
+    "serverless",
+    "vercel"
   ],
   "author": "",
   "license": "ISC",
