@@ -6,29 +6,29 @@ import taskRoutes from "../src/routes/taskRoutes";
 
 dotenv.config();
 
-const app = express();
-
 // Connect to database
 connectDB();
 
-// CORS middleware
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(origin => origin.trim()).filter(Boolean);
+const app = express();
+
+// CORS middleware - Allow all origins for now
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+  origin: ['http://localhost:3000', 'https://task-manager-opal-one.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Task routes
-app.use('/api/tasks', taskRoutes);
+// Mount task routes directly (without /api prefix since this function handles /api/tasks/*)
+app.use('/', taskRoutes);
+
+// Error handling
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal server error' });
+});
 
 export default app;

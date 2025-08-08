@@ -5,7 +5,9 @@
   ],
   "routes": [
     { "src": "/api/auth/(.*)", "dest": "/api/auth" },
+    { "src": "/api/auth", "dest": "/api/auth" },
     { "src": "/api/tasks/(.*)", "dest": "/api/tasks" },
+    { "src": "/api/tasks", "dest": "/api/tasks" },
     { "src": "/api/health", "dest": "/api/health" },
     { "src": "/", "dest": "/api/index" },
     { "src": "/(.*)", "dest": "/api/index" }

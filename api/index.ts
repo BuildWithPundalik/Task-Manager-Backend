@@ -14,19 +14,12 @@ const app = express();
 // Connect to database
 connectDB();
 
-// Middleware
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(origin => origin.trim()).filter(Boolean);
+// CORS middleware - Allow all origins for now
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+  origin: ['http://localhost:3000', 'https://task-manager-opal-one.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -42,6 +35,7 @@ app.get("/", (_req, res) => {
     endpoints: {
       auth: "/api/auth",
       tasks: "/api/tasks",
+      health: "/api/health"
     }
   });
 });
