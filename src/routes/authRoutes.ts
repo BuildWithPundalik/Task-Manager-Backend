@@ -4,7 +4,8 @@ import {
   login, 
   getProfile, 
   updateProfile, 
-  changePassword 
+  changePassword,
+  verifyToken
 } from '../controllers/authController';
 import { auth } from '../middlewares/auth';
 
@@ -15,6 +16,7 @@ router.post('/register', register);
 router.post('/login', login);
 
 // Protected routes
+router.get('/verify', auth, verifyToken);
 router.get('/profile', auth, getProfile);
 router.put('/profile', auth, updateProfile);
 router.put('/change-password', auth, changePassword);

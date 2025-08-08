@@ -7,22 +7,35 @@ import { AuthRequest } from '../middlewares/auth';
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
+    console.log(`📝 Registration attempt for:`, { name, email, password: password ? '***' : 'undefined' });
+
+    // Validate input
+    if (!name || !email || !password) {
+      console.log('❌ Missing required fields');
+      res.status(400).json({ message: 'Name, email, and password are required' });
+      return;
+    }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    console.log(`👤 Existing user check:`, existingUser ? 'User exists' : 'User does not exist');
+    
     if (existingUser) {
+      console.log(`❌ User already exists: ${email}`);
       res.status(400).json({ message: 'User already exists' });
       return;
     }
 
     // Create new user
+    console.log(`✨ Creating new user: ${email}`);
     const user = new User({
       name,
-      email,
+      email: email.toLowerCase(),
       password
     });
 
     await user.save();
+    console.log(`✅ User created successfully: ${user.email}`);
 
     // Generate token
     const token = generateToken(user._id.toString());
@@ -37,6 +50,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error: any) {
+    console.error('💥 Registration error:', error);
     res.status(500).json({ 
       message: 'Server error', 
       error: error.message 
@@ -48,23 +62,40 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
+    console.log(`🔍 Login attempt for email: ${email}`);
+    console.log(`📝 Request body:`, { email, password: password ? '***' : 'undefined' });
+
+    // Validate input
+    if (!email || !password) {
+      console.log('❌ Missing email or password');
+      res.status(400).json({ message: 'Email and password are required' });
+      return;
+    }
 
     // Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
+    console.log(`👤 User lookup result:`, user ? `Found: ${user.name} (${user.email})` : 'Not found');
+    
     if (!user) {
+      console.log(`❌ User not found for email: ${email}`);
       res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
 
     // Check password
+    console.log(`🔐 Comparing password for user: ${user.email}`);
     const isMatch = await user.comparePassword(password);
+    console.log(`🔑 Password match result: ${isMatch}`);
+    
     if (!isMatch) {
+      console.log(`❌ Password mismatch for user: ${email}`);
       res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
 
     // Generate token
     const token = generateToken(user._id.toString());
+    console.log(`✅ Login successful for user: ${email}`);
 
     res.json({
       message: 'Login successful',
@@ -76,6 +107,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error: any) {
+    console.error('💥 Login error:', error);
     res.status(500).json({ 
       message: 'Server error', 
       error: error.message 
@@ -86,12 +118,17 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 // Get user profile
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    console.log(`📋 Profile request for user:`, req.user ? req.user.email : 'No user');
+    
     if (!req.user) {
+      console.log('❌ User not authenticated in getProfile');
       res.status(401).json({ message: 'User not authenticated' });
       return;
     }
 
+    console.log(`✅ Returning profile for: ${req.user.name} (${req.user.email})`);
     res.json({
+      message: 'Profile retrieved successfully',
       user: {
         id: req.user._id,
         name: req.user.name,
@@ -99,7 +136,42 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
   } catch (error: any) {
+    console.error('💥 Profile error:', error);
     res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message 
+    });
+  }
+};
+
+// Verify token and get current user
+export const verifyToken = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    console.log(`🔍 Token verification request`);
+    
+    if (!req.user) {
+      console.log('❌ Token verification failed - no user');
+      res.status(401).json({ 
+        valid: false, 
+        message: 'Token is not valid' 
+      });
+      return;
+    }
+
+    console.log(`✅ Token valid for: ${req.user.name} (${req.user.email})`);
+    res.json({
+      valid: true,
+      message: 'Token is valid',
+      user: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email
+      }
+    });
+  } catch (error: any) {
+    console.error('💥 Token verification error:', error);
+    res.status(500).json({ 
+      valid: false,
       message: 'Server error', 
       error: error.message 
     });
