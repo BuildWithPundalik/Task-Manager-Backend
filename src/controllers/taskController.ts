@@ -2,6 +2,7 @@ import { Response } from 'express';
 import Task, { ITask } from '../models/Task';
 import { AuthRequest } from '../middlewares/auth';
 import mongoose from 'mongoose';
+import { handleError } from '../utils/errorHandler';
 
 // Get all tasks for authenticated user
 export const getTasks = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -38,10 +39,7 @@ export const getTasks = async (req: AuthRequest, res: Response): Promise<void> =
       tasks
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Get tasks error');
   }
 };
 
@@ -75,10 +73,7 @@ export const getTask = async (req: AuthRequest, res: Response): Promise<void> =>
       task
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Get task error');
   }
 };
 
@@ -127,10 +122,7 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
       task: populatedTask
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Create task error');
   }
 };
 
@@ -184,10 +176,7 @@ export const updateTask = async (req: AuthRequest, res: Response): Promise<void>
       task
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Update task error');
   }
 };
 
@@ -221,10 +210,7 @@ export const deleteTask = async (req: AuthRequest, res: Response): Promise<void>
       message: 'Task deleted successfully'
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Delete task error');
   }
 };
 
@@ -281,9 +267,6 @@ export const getTaskStats = async (req: AuthRequest, res: Response): Promise<voi
       stats: result
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Get task stats error');
   }
 };

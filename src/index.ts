@@ -3,11 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/database";
 import routes from "./routes";
+import { handleError } from "./utils/errorHandler";
 
 dotenv.config();
-
-// Connect to database
-connectDB();
 
 const app = express();
 
@@ -56,11 +54,7 @@ app.get("/", (_req, res) => {
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
-  });
+  handleError(err, res, `Error in ${req.method} ${req.url}`);
 });
 
 // 404 handler
@@ -68,12 +62,26 @@ app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
+// Start server after database connection
+const startServer = async () => {
+  try {
+    // Wait for database connection first
+    await connectDB();
+    
+    // Start the server only after database is connected
+    const PORT = Number(process.env.PORT) || 5000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📡 Server bound to all interfaces on port ${PORT}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
-// Start the server
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+startServer();
 
 export default app;

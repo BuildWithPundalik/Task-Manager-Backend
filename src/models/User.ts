@@ -14,6 +14,7 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: [true, 'Name is required'],
     trim: true,
+    minlength: [2, 'Name must be at least 2 characters long'],
     maxlength: [50, 'Name cannot be more than 50 characters']
   },
   email: {
@@ -22,12 +23,25 @@ const userSchema = new Schema<IUser>({
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email address']
   },
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters']
+    minlength: [6, 'Password must be at least 6 characters long'],
+    maxlength: [128, 'Password cannot be more than 128 characters'],
+    validate: {
+      validator: function(password: string) {
+        // Password must contain at least:
+        // - One lowercase letter
+        // - One uppercase letter
+        // - One number
+        // - One special character
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+        return strongPasswordRegex.test(password);
+      },
+      message: 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*?&)'
+    }
   }
 }, {
   timestamps: true

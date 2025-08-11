@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import { generateToken } from '../utils/jwt';
 import { AuthRequest } from '../middlewares/auth';
+import { handleError } from '../utils/errorHandler';
 
 // Register user
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -13,6 +14,22 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (!name || !email || !password) {
       console.log('❌ Missing required fields');
       res.status(400).json({ message: 'Name, email, and password are required' });
+      return;
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      console.log('❌ Password too short');
+      res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      return;
+    }
+
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+    if (!strongPasswordRegex.test(password)) {
+      console.log('❌ Password not strong enough');
+      res.status(400).json({ 
+        message: 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*?&)' 
+      });
       return;
     }
 
@@ -50,11 +67,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error: any) {
-    console.error('💥 Registration error:', error);
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Registration error');
   }
 };
 
@@ -107,11 +120,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error: any) {
-    console.error('💥 Login error:', error);
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Login error');
   }
 };
 
@@ -136,11 +145,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
       }
     });
   } catch (error: any) {
-    console.error('💥 Profile error:', error);
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Profile error');
   }
 };
 
@@ -169,12 +174,7 @@ export const verifyToken = async (req: AuthRequest, res: Response): Promise<void
       }
     });
   } catch (error: any) {
-    console.error('💥 Token verification error:', error);
-    res.status(500).json({ 
-      valid: false,
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Token verification error');
   }
 };
 
@@ -221,10 +221,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
       }
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Update profile error');
   }
 };
 
@@ -259,9 +256,6 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
 
     res.json({ message: 'Password updated successfully' });
   } catch (error: any) {
-    res.status(500).json({ 
-      message: 'Server error', 
-      error: error.message 
-    });
+    handleError(error, res, 'Change password error');
   }
 };
